@@ -61,8 +61,8 @@ module ElfMailer
             :message => ElfMailer::PostalService.form_message(k, v),
             :subject => "Mailer Elf Secret Santa Assignment",
             :to_address => @people_info[k]['email'],
-            :from_address => ENV['FROM_EMAIL'],
-            :from_name => "The Mailer Elf"
+            :from_address => ENV['from_email'],
+            :from_name => ENV['from_name']
           })
         end
       end

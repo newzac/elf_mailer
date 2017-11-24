@@ -4,10 +4,10 @@ module ElfMailer
   class PostalService
     def self.send_message(email_info)
       RestClient::Request.execute(
-        :url => ENV['MAILER_URL']
+        :url => ENV['mailer_url']
         :method => :post,
         :payload => {
-          :from => ENV['FROM'],
+          :from => "#{email_info[:from_name]} #{email_info[:from_address]}",
           :to => email_info[:to_address],
           :subject => email_info[:subject],
           :text => email_info[:message]
@@ -24,11 +24,11 @@ module ElfMailer
 
       Sincerely,
 
-      The Mailer Elf
+      #{ENV['from_name']}
 
 
-      If something seems wrong with this message or if you believe that you received this message in error, please let #{ENV['CONTACT_NAME']} know.
-      He can be reached at #{ENV['CONTACT']}"""
+      If something seems wrong with this message or if you believe that you received this message in error, please let #{ENV['contact_name']} know.
+      He can be reached at #{ENV['contact_email']}"""
     end
   end
 end

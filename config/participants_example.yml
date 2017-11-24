@@ -1,0 +1,10 @@
+Joe:
+  first_name: Joe
+  last_name: Smith
+  email: joe@example.com
+  partner: Jane
+Jane:
+  first_name: Jane
+  last_name: Johnson
+  email: jane@example.com
+  partner: Joe
