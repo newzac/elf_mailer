@@ -1,83 +1,76 @@
-require 'net/smtp'
-require_relative './random.rb'
+#!/usr/bin/env ruby
+require 'rest-client'
+require 'yaml'
+require 'securerandom'
+require_relative './postal_service'
 
-module SecretSanta
+module ElfMailer
   class Match
     def initialize
-      @couples = {"Ainsley" => "Eric", "Whitley" => "Dave", "Kaari" => "Zachary"}
-      @people = []
-      @people_to_emails = []
-      @couples.each{ |k,v| @people += [k, v] }
+      @people_info = YAML.load(File.read(ARGV[0]))
+      @people = @people_info.keys
+      @people
+      @people = @people.shuffle
       puts @people
       @secret_santas = {}
-      @try
+      @used = []
+      #@debug = true
+      @debug = false
+      @complete = false
     end
 
-    def random_person
-      @people[SecureRandom.random_number(@people.length + 1)]
+    def say (text)
+      puts text if @debug
     end
 
-
-
-    def get_secret_santa (person)
-      spouse = @couples[person] || @couples.select{ |k, v| v == person }.keys[0]
-      people = @people.reject do |santa| santa == spouse || santa == person end
-      secret_santa = SecretSanta::Random.new.random_person(people) 
-      puts "#{person}'s secret santa is #{secret_santa}\n"
-      @try = 1
-      while (secret_santa == spouse  || @secret_santas[secret_santa] != nil.to_s || secret_santa == person) && @try < 100
-        secret_santa = SecretSanta::Random.new.random_person(people)
-        @try += 1
-      end
-      if @try >= 100
-        puts "Warning: Pairs may be inconsistent"
-      end
-  
-      @secret_santas[secret_santa.to_s] = person
-      puts "#{person}'s secret santa is #{secret_santa}\n"
-    end
-  
-    def create_message (person, secret_santa, to_address)
-      message = <<-END_OF_MESSAGE
-      From: Secret Santa <secret-santa@zachandkaari.com>
-      To: #{secret_santa} #{to_address}
-      Date: #{Time.now}
-      Message-Id: <#{SecureRandom.random_hex(10)}-#{name}-secret-santa@zachandkaari.com>
-
-      Hello #{secret_santa},\n
-      I'm your friendly family Secret Santa Bot writing to tell you that I have your Secret Santa Match.\n
-      You are #{person}'s secret santa.\n
-      \n
-      Sincerely,\n
-      \n
-      Secret Santa Bot\n
-      \n
-      \n
-      If something seems wrong with this message or if you believe that you recieved this message in error, please let @znewman know.\n
-      He can be reached at z@znewman.com
-      END_OF_MESSAGE
-
-    end
-
-    def send_message (message, to_address)
-      Net::SMTP.start('smtp-relay.gmail.com', 587) do |smtp|
-        smtp.send_message message, 'secret-santa@zachandkaari.com', to_address
+    def possible_matches(person)
+      @people.reject do |m|
+        m == person || m == @people_info[person]['partner'] || @used.include?(m)
       end
     end
-
 
     def run
-      @people.shuffle
-      @secret_santas = {}
-      message = ""
-      @people.each{ |person| message << get_secret_santa(person).to_s }
-      if @try > 99
-        self.run
-      else
-        puts message
+      @people.each do |p|
+        possible_matches = possible_matches(p).shuffle
+        @secret_santas[p] = possible_matches[SecureRandom.random_number(possible_matches.length - 1)]
+        @used << @secret_santas[p]
       end
+
+      def log(secret_santa, person)
+        file_name = "#{secret_santa}.log"
+        file = File.new file_name, 'w'
+        file.puts file, "#{secret_santa} is #{person}'s secret santa"
+        file.close
+      end
+
+      @secret_santas.each do |k,v|
+        if  v == nil
+          @complete = false
+          break
+        else
+          @complete = true
+        end
+      end
+
+      say @secret_santas if @complete
+      if @complete
+        @secret_santas.each do |k,v|
+          log(k, v)
+          puts "Sending mail to #{k}"
+          ElfMailer::PostalService.send_message({
+            :message => ElfMailer::PostalService.form_message(k, v),
+            :subject => "Mailer Elf Secret Santa Assignment",
+            :to_address => @people_info[k]['email'],
+            :from_address => ENV['FROM_EMAIL'],
+            :from_name => "The Mailer Elf"
+          })
+        end
+      end
+      @complete
     end
   end
 end
-
-SecretSanta::Match.new.run
+complete = false
+while ! complete
+  complete = ElfMailer::Match.new.run
+end
