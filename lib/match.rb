@@ -31,7 +31,7 @@ module ElfMailer
 
     def log(secret_santa, person)
       file_name = "#{secret_santa}.log"
-      file = File.new file_name, 'w'
+      file = File.new "log/#{file_name}", 'w'
       file.puts file, "#{secret_santa} is #{person}'s secret santa"
       file.close
     end
