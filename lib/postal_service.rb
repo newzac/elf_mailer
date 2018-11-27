@@ -4,7 +4,7 @@ module ElfMailer
   class PostalService
     def self.send_message(email_info)
       RestClient::Request.execute(
-        :url => ENV['mailer_url']
+        :url => ENV['mailer_url'],
         :method => :post,
         :payload => {
           :from => "#{email_info[:from_name]} #{email_info[:from_address]}",
