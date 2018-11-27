@@ -19,8 +19,8 @@ module ElfMailer
 
     def self.form_message(secret_santa, person)
       """Hello #{secret_santa},
-      I'm your friendly family Secret Santa Bot writing to tell you that I have your Secret Santa Match.
-      You are #{person}'s Secret Santa.
+      I'm your friendly Secret Santa Bot writing to tell you that I have your Secret Santa Match.
+      You are #{person}'s Secret Santa. This year please keep the gift buying to a budget of $25.
 
       Sincerely,
 
