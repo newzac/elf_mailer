@@ -41,14 +41,14 @@ module ElfMailer
     # +secret_santa+ - string - the name of the person recieving the email
     # +person+ - string - the person that the secret santa has been matched to
     # +budget+ - string - the gift giving budget, the default is $25
-    # +additonal_message+ - string - any additional text that you would like to add in the message
+    # +additional_message+ - string - any additional text that you would like to add in the message
 
     def self.form_message(secret_santa, person, budget="$25", additional_message="")
       """Hello #{secret_santa},
       I'm your friendly Secret Santa Bot writing to tell you that I have your Secret Santa match.
       You are #{person}'s Secret Santa.
 
-      #{additonal_message}
+      #{additional_message}
 
       This year please keep the gift buying to around #{budget}.
 
