@@ -19,12 +19,12 @@ module ElfMailer
     end
 
     def say (text)
-      puts text if @debug
+      puts text if debug
     end
 
     def possible_matches(person)
-      @people.reject do |m|
-        m == person || m == @people_info[person]['partner'] || @used.include?(m)
+      people.reject do |m|
+        m == person || m == people_info[person]['partner'] || used.include?(m)
       end
     end
 
@@ -35,43 +35,56 @@ module ElfMailer
       file.close
     end
 
-
-    def run
-      @people.each do |p|
-        possible_matches = possible_matches(p).shuffle
-        @secret_santas[p] = possible_matches[SecureRandom.random_number(possible_matches.length - 1)]
-        @used << @secret_santas[p]
+    def send_messages
+      secret_santas.each do |k,v|
+        log(k, v)
+        puts "Sending mail to #{k}"
+        ElfMailer::PostalService.send_message({
+          :message => ElfMailer::PostalService.form_message(k, v),
+          :subject => "Mailer Elf Secret Santa Assignment",
+          :to_address => people_info[k]['email'],
+          :from_address => ENV['from_email'],
+          :from_name => ENV['from_name']
+        })
       end
+    end
 
-      @secret_santas.each do |k,v|
+    def complete?
+      secret_santas.each do |k,v|
         if  v == nil
-          @complete = false
+          complete = false
           break
         else
-          @complete = true
+          complete = true
         end
+      end
+      complete
+    end
+
+    def match_people
+      people.each do |p|
+        possible_matches = possible_matches(p).shuffle
+        secret_santas[p] = possible_matches[SecureRandom.random_number(possible_matches.length - 1)]
+        used << secret_santas[p]
+      end
+    end
+
+    def run
+      match_people
+
+      if complete?
+        say secret_santas
+        send_messages
       end
 
-      say @secret_santas if @complete
-      if @complete
-        @secret_santas.each do |k,v|
-          log(k, v)
-          puts "Sending mail to #{k}"
-          ElfMailer::PostalService.send_message({
-            :message => ElfMailer::PostalService.form_message(k, v),
-            :subject => "Mailer Elf Secret Santa Assignment",
-            :to_address => @people_info[k]['email'],
-            :from_address => ENV['from_email'],
-            :from_name => ENV['from_name']
-          })
-        end
+      complete
+    end
+
+    def run_until_matched
+      complete = false
+      while ! complete
+        complete = ElfMailer::Match.new.run
       end
-      @complete
     end
   end
-end
-
-complete = false
-while ! complete
-  complete = ElfMailer::Match.new.run
 end
