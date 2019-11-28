@@ -5,6 +5,8 @@ module ElfMailer
 
     # #
     # Posts the email message and payload to the configured mailer url
+    # When the boolean +DEBUG+ environment variable is set it prints the
+    # messsage subject and email to stdout instead of sending
     # Params:
     # +email_info+ is hash of email configuration info including
     #   :mailer_url - string - Mailer provider url to post the message info to
@@ -38,16 +40,17 @@ module ElfMailer
     # Params:
     # +secret_santa+ - string - the name of the person recieving the email
     # +person+ - string - the person that the secret santa has been matched to
+    # +budget+ - string - the gift giving budget, the default is $25
     # +additonal_message+ - string - any additional text that you would like to add in the message
 
-    def self.form_message(secret_santa, person, additional_message="")
+    def self.form_message(secret_santa, person, budget="$25", additional_message="")
       """Hello #{secret_santa},
       I'm your friendly Secret Santa Bot writing to tell you that I have your Secret Santa match.
       You are #{person}'s Secret Santa.
 
       #{additonal_message}
 
-      This year please keep the gift buying to around $25.
+      This year please keep the gift buying to around #{budget}.
 
       Sincerely,
 
