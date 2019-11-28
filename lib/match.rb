@@ -6,17 +6,16 @@ require_relative './postal_service'
 
 module ElfMailer
   class Match
+    attr_accessor :complete, :debug, :people_info, :people, :secret_santas, :used
     def initialize
-      @people_info = YAML.load(File.read(ARGV[0]))
-      @people = @people_info.keys
-      @people
-      @people = @people.shuffle
-      #puts @people
-      @secret_santas = {}
-      @used = []
-      #@debug = true
-      @debug = false
-      @complete = false
+      self.complete      = false
+      self.debug         = ENV['DEBUG'] || false
+      self.people_info   = YAML.load(File.read(ARGV[0]))
+      self.people        = people_info.keys
+      self.secret_santas = {}
+      self.used          = []
+      people             = people.shuffle
+      puts people if debug
     end
 
     def say (text)
