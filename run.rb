@@ -3,4 +3,4 @@
 require_relative "config/environment"
 require_relative "lib/match"
 
-ElfMailer::Match.new
+ElfMailer::Match.run_until_matched
