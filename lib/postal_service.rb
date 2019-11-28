@@ -15,17 +15,22 @@ module ElfMailer
     #   :message - string - the message body for the email
 
     def self.send_message(email_info)
-      RestClient::Request.execute(
-        :url => ENV['mailer_url'],
-        :method => :post,
-        :payload => {
-          :from => "#{email_info[:from_name]} #{email_info[:from_address]}",
-          :to => email_info[:to_address],
-          :subject => email_info[:subject],
-          :text => email_info[:message]
-        },
-      :verify_ssl => true
-      )
+      if ENV['DEBUG']
+        puts email_info[:subject]
+        puts email_info[:message]
+      else
+        RestClient::Request.execute(
+          :url => ENV['mailer_url'],
+          :method => :post,
+          :payload => {
+            :from => "#{email_info[:from_name]} #{email_info[:from_address]}",
+            :to => email_info[:to_address],
+            :subject => email_info[:subject],
+            :text => email_info[:message]
+          },
+          :verify_ssl => true
+        )
+      end
     end
 
     # #
