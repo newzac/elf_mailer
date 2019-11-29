@@ -10,12 +10,12 @@ module ElfMailer
     def initialize
       self.complete      = false
       self.debug         = ENV['DEBUG'] || false
-      self.people_info   = YAML.load(File.read(ARGV[0]))
+      participant_info   = ARGV[0] == nil ? ENV['PEOPLE_INFO'] : ARGV[0]
+      self.people_info   = YAML.load(File.read(participant_info))
       self.people        = people_info.keys
-      #puts people if debug
       self.secret_santas = {}
       self.used          = []
-      self.people             = people.shuffle
+      self.people        = people.shuffle
     end
 
     def say (text)
@@ -42,8 +42,8 @@ module ElfMailer
         log(k, v)
         puts "Sending mail to #{k}"
         ElfMailer::PostalService.send_message({
-          :message => ElfMailer::PostalService.form_message(k, v),
-          :subject => "Mailer Elf Secret Santa Assignment",
+          :message => ElfMailer::PostalService.form_message(k, v, ENV['budget'], ENV['message']),
+          :subject => "Your Elf Mailer Secret Santa Assignment",
           :to_address => people_info[k]['email'],
           :from_address => ENV['from_email'],
           :from_name => ENV['from_name']
@@ -52,15 +52,9 @@ module ElfMailer
     end
 
     def complete?
-      secret_santas.each do |k,v|
-        if  v == nil
-          complete = false
-          break
-        else
-          complete = true
-        end
-      end
-
+      invalid = secret_santas.select{ |k,v| v == nil }
+      self.complete = invalid.empty?
+      say "Here are the invalid matches: #{invalid}"
       say "Complete = #{complete}"
       complete
     end
@@ -72,6 +66,7 @@ module ElfMailer
         possible_matches = possible_matches(p).shuffle
         say "Matching #{p}"
         secret_santas[p] = possible_matches[SecureRandom.random_number(possible_matches.length - 1)]
+        say "#{p} is #{secret_santas[p]}'s Secret Santa"
         used << secret_santas[p]
       end
     end
@@ -84,14 +79,17 @@ module ElfMailer
         send_messages
       end
 
+      say complete
       complete
     end
 
     def self.run_until_matched
       complete = false
-      while ! complete
-        say "Starting new Elf Mailer run..."
+      while complete != true
+        puts "#{complete}\r\r\r\r\r\r\r\r\r\r"
+        puts "Starting new Elf Mailer run..." if ENV['DEBUG']
         complete = ElfMailer::Match.new.run
+        puts "Is the run complete? #{complete}"
       end
     end
   end

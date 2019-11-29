@@ -44,12 +44,11 @@ module ElfMailer
     # +additional_message+ - string - any additional text that you would like to add in the message
 
     def self.form_message(secret_santa, person, budget="$25", additional_message="")
-      """Hello #{secret_santa},
+      <<-EOF
+      Hello #{secret_santa},
       I'm your friendly Secret Santa Bot writing to tell you that I have your Secret Santa match.
       You are #{person}'s Secret Santa.
-
-      #{additional_message}
-
+      #{"\n      " + additional_message + "\n" if additional_message.length > 0}
       This year please keep the gift buying to around #{budget}.
 
       Sincerely,
@@ -58,7 +57,8 @@ module ElfMailer
 
 
       If something seems wrong with this message or if you believe that you received this message in error, please let #{ENV['contact_name']} know.
-      They can be reached at #{ENV['contact_email']}"""
+      They can be reached at #{ENV['contact_email']}
+      EOF
     end
   end
 end
