@@ -86,8 +86,8 @@ module ElfMailer
       while complete != true
         puts "Starting new Elf Mailer run..." if ENV['DEBUG']
         complete = ElfMailer::Match.new.run
-        puts "The the run complete? #{complete}"
       end
+      puts "Matching complete!
     end
   end
 end
