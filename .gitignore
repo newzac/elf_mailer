@@ -17,6 +17,7 @@
 !/log/.keep
 !/tmp/.keep
 /config/*.yml
+/config/*.yaml
 /config/*.rb
 
 # Ignore Byebug command history file.
