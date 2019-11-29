@@ -55,8 +55,8 @@ module ElfMailer
       invalid = secret_santas.select{ |k,v| v == nil }
       self.complete = invalid.empty?
       say "Here are the invalid matches: #{invalid}"
-      say "Complete = #{complete}"
-      complete
+      say "Complete = #{self.complete}"
+      self.complete
     end
 
     def match_people
@@ -78,18 +78,15 @@ module ElfMailer
         say secret_santas
         send_messages
       end
-
-      say complete
       complete
     end
 
     def self.run_until_matched
       complete = false
       while complete != true
-        puts "#{complete}\r\r\r\r\r\r\r\r\r\r"
         puts "Starting new Elf Mailer run..." if ENV['DEBUG']
         complete = ElfMailer::Match.new.run
-        puts "Is the run complete? #{complete}"
+        puts "The the run complete? #{complete}"
       end
     end
   end
