@@ -126,7 +126,7 @@ module ElfMailer
         puts "Starting new Elf Mailer run..." if ENV['DEBUG']
         complete = ElfMailer::Match.new.run
       end
-      puts "Matching complete!
+      puts 'Matching complete!'
     end
   end
 end
