@@ -18,9 +18,21 @@ module ElfMailer
       self.people        = people.shuffle
     end
 
+    ##
+    # Prints text to stdout if running with debug
+    # Params:
+    # +text+ - string - the message to be displayed
+
     def say (text)
       puts text if debug
     end
+
+    ##
+    # Gets all of the possible matches from the pool of people excluding the person themself
+    # and any other people that have been matched already
+    # Returns the array of possible matches
+    # Params:
+    # +person+ - string - the first name of the person being matched
 
     def possible_matches(person)
       say "Getting possible matches for #{person}"
@@ -29,6 +41,13 @@ module ElfMailer
       end
     end
 
+    ##
+    # Logs secret santa matches to individual log files
+    # Due to this being double blind these files are the main way to debug if something went wrong
+    # Params:
+    # +secret_santa+ - string - name of the person who is the secret santa
+    # +person+ - string - the match for the secret santa which is written to the file
+
     def log(secret_santa, person)
       say "Logging #{secret_santa}'s match..."
       file_name = "#{secret_santa}.log"
@@ -36,6 +55,9 @@ module ElfMailer
       file.puts file, "#{secret_santa} is #{person}'s secret santa"
       file.close
     end
+
+    ##
+    # Sends the messages for each match
 
     def send_messages
       secret_santas.each do |k,v|
@@ -51,6 +73,10 @@ module ElfMailer
       end
     end
 
+    ##
+    # Verifies that all of the matches are valid based on none of the pairs having an empty match
+    # Returns a boolean
+
     def complete?
       invalid = secret_santas.select{ |k,v| v == nil }
       self.complete = invalid.empty?
@@ -58,6 +84,10 @@ module ElfMailer
       say "Complete = #{self.complete}"
       self.complete
     end
+
+    ##
+    # Matches people all of the people in the people array
+    # Assigns the matches to the secret_santas hash
 
     def match_people
       say "Matching people:\r#{people}"
@@ -71,6 +101,12 @@ module ElfMailer
       end
     end
 
+    ##
+    # Runs the match for all of the people
+    # Verifies that the matches are correct
+    # Sends the email messages
+    # Returns a the complete boolean
+
     def run
       match_people
 
@@ -80,6 +116,9 @@ module ElfMailer
       end
       complete
     end
+
+    ##
+    # Runs the run method until complete returns true
 
     def self.run_until_matched
       complete = false
